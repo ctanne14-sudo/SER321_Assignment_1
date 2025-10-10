@@ -31,14 +31,22 @@ public class GameEngine {
         }
 
         attempts++;
-
-        if (guess == target) {
-            gameWon = true;
-            return new GuessResult(true, "Correct! You guessed it in " + attempts + " attempts.", attempts);
-        } else if (guess < target) {
-            return new GuessResult(false, "Too low! Try a higher number.", attempts);
+        int remaining = MAX_ATTEMPTS - attempts;
+         
+        
+        if (attempts >= MAX_ATTEMPTS) {
+            gameOver = true;
+            return new GuessResult(false, "Game Over! You've used all " + MAX_ATTEMPTS + " attempts. The number was " + target + ". " + remaining + " attempts remaining", attempts);
         } else {
-            return new GuessResult(false, "Too high! Try a lower number.", attempts);
+            GuessResult result;
+            if (guess == target) {
+            gameWon = true;
+                return new GuessResult(true, "Correct! You guessed it in " + attempts + " attempts. " + remaining + " attempts remaining", attempts);
+            } else if (guess < target) {
+                return new GuessResult(false, "Too low! Try a higher number. " + remaining + " attempts remaining", attempts);
+            } else {
+                return new GuessResult(false, "Too high! Try a lower number. " + remaining + " attempts remaining", attempts);
+            }
         }
     }
 
