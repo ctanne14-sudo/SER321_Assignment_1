@@ -1,10 +1,14 @@
 public class GameEngine {
+    private static final int MAX_ATTEMPTS = 10;
+
     private final int min;
     private final int max;
     private int target;
     private int attempts;
     private boolean gameWon;
     private boolean userQuit;
+    private boolean gameOver;
+
 
     private boolean hintsEnabled;
 
@@ -14,8 +18,9 @@ public class GameEngine {
         this.attempts = 0;
         this.gameWon = false;
         this.userQuit = false;
-
         this.hintsEnabled = true;
+        this.gameOver = false;
+
         reset();
     }
 
@@ -28,19 +33,28 @@ public class GameEngine {
 
         attempts++;
 
-        if (guess == target) {
-            gameWon = true;
-            return new GuessResult(true, "Correct! You guessed it in " + attempts + " attempts.", attempts);
+        int remaining = MAX_ATTEMPTS - attempts;
+         
+        
+        if (attempts >= MAX_ATTEMPTS) {
+            gameOver = true;
+            return new GuessResult(false, "Game Over! You've used all " + MAX_ATTEMPTS + " attempts. The number was " + target + ". " + remaining + " attempts remaining", attempts);
         } else {
-            String hint = getHint(guess);
             GuessResult result;
-            if (guess < target) {
-                result = new GuessResult(false, "Too low!", attempts);
-            } else {
-                result = new GuessResult(false, "Too high!", attempts);
+            if (guess == target) {
+            gameWon = true;
+                return new GuessResult(true, "Correct! You guessed it in " + attempts + " attempts. " + remaining + " attempts remaining", attempts);
+            } else{
+                String hint = getHint(guess);
+            
+                if (guess < target) {
+                    result = new GuessResult(false, "Too low! Try a higher number. " + remaining + " attempts remaining", attempts);
+                } else {
+                    result = new GuessResult(false, "Too high! Try a lower number. " + remaining + " attempts remaining", attempts);
+                }
+                result.setHint(hint);
+                return result;
             }
-            result.setHint(hint);
-            return result;
         }
     }
 
@@ -48,7 +62,10 @@ public class GameEngine {
         target = Utils.randomInt(min, max);
         attempts = 0;
         gameWon = false;
+
         userQuit = false;
+        gameOver = false;
+
     }
 
     public boolean isGameWon() {
@@ -58,9 +75,16 @@ public class GameEngine {
     public boolean hasUserQuit() {
         return userQuit;
     }
+    public boolean isGameOver() {
+        return gameOver;
+    }
 
     public int getAttempts() {
         return attempts;
+    }
+
+    public int getMaxAttempts() {
+        return MAX_ATTEMPTS;
     }
 
     public int getMin() {
